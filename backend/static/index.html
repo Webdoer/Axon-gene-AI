@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Axon gene AI v2 — Enterprise Variant Intelligence</title>
+    <meta name="description" content="Multi-agent genomic variant classification engine with self-debugging, enterprise guardrails, zero-trust security, and long-term memory.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        })();
+    </script>
+</head>
+<body>
+    <!-- Ambient Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="grid-overlay"></div>
+    </div>
+
+    <!-- Floating Fallback Button (fades in only when sidebar is fully collapsed) -->
+    <button class="sidebar-open-btn" id="sidebar-open-btn" aria-label="Open navigation">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <div class="app-shell">
+        <!-- ── SIDEBAR (Gemini-style in-flex) ────────────────────────── -->
+        <aside class="sidebar" id="sidebar">
+            <!-- .sidebar-inner keeps content at fixed width so it doesn't squish during transition -->
+            <div class="sidebar-inner">
+                <div class="brand">
+                    <div class="brand-icon">
+                        <i class="fa-solid fa-dna"></i>
+                    </div>
+                    <div class="brand-text">
+                        <span class="brand-name">Axon gene</span>
+                        <span class="brand-version">AI v2</span>
+                    </div>
+
+                </div>
+
+                <nav class="nav-menu">
+                    <div class="nav-section-label">Core</div>
+                    <a href="#" class="nav-item active" data-tab="dashboard-tab" id="nav-dashboard">
+                        <i class="fa-solid fa-chart-network"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="nav-item" data-tab="analysis-tab" id="nav-analysis">
+                        <i class="fa-solid fa-magnifying-glass-dna"></i>
+                        <span>Analysis</span>
+                    </a>
+                    <a href="#" class="nav-item" data-tab="history-tab" id="nav-history">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                        <span>Analysis History</span>
+                    </a>
+                    <a href="#" class="nav-item" data-tab="batch-vcf-tab" id="nav-batch-vcf">
+                        <i class="fa-solid fa-dna"></i>
+                        <span>Batch VCF</span>
+                        <span class="nav-badge info">NEW</span>
+                    </a>
+                    <a href="#" class="nav-item" data-tab="hitl-tab" id="nav-hitl">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <span>HITL Gate</span>
+                        <span class="nav-badge" id="hitl-count" style="display:none">0</span>
+                    </a>
+
+                    <div class="nav-section-label" style="margin-top:1.5rem">Advanced</div>
+                    <a href="#" class="nav-item" data-tab="eval-tab" id="nav-eval">
+                        <i class="fa-solid fa-flask-vial"></i>
+                        <span>Eval Suite</span>
+                        <span class="nav-badge info">20</span>
+                    </a>
+                    <a href="#" class="nav-item" data-tab="security-tab" id="nav-security">
+                        <i class="fa-solid fa-lock"></i>
+                        <span>Audit & Security</span>
+                    </a>
+                    <a href="#" class="nav-item" data-tab="telemetry-tab" id="nav-telemetry">
+                        <i class="fa-solid fa-microchip"></i>
+                        <span>Telemetry Matrix</span>
+                    </a>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <div class="status-pill operational">
+                        <span class="pulse-dot"></span>
+                        <span>System Operational</span>
+                    </div>
+                </div>
+            </div><!-- /.sidebar-inner -->
+        </aside>
+
+        <!-- ── MAIN ────────────────────────────────────────────── -->
+        <main class="main-area" id="main-area">
+            <!-- Floating Pill Header -->
+            <header class="top-bar" id="top-bar">
+                <div class="top-bar-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle-btn" aria-label="Toggle navigation">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="top-bar-title">
+                        <h1 id="page-title">Variant Interpretation Dashboard</h1>
+                        <p id="page-subtitle">Real-time multi-agent genomic classification with enterprise guardrails</p>
+                    </div>
+                </div>
+                <div class="top-bar-stats">
+                    <div class="mini-stat" id="stat-total">
+                        <i class="fa-solid fa-database"></i>
+                        <div><span class="mini-stat-val" id="gs-total">0</span><span class="mini-stat-lbl">Runs</span></div>
+                    </div>
+                    <div class="mini-stat success" id="stat-completed">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <div><span class="mini-stat-val" id="gs-completed">0</span><span class="mini-stat-lbl">Completed</span></div>
+                    </div>
+                    <div class="mini-stat danger" id="stat-guard">
+                        <i class="fa-solid fa-shield-exclamation"></i>
+                        <div><span class="mini-stat-val" id="gs-guard">0</span><span class="mini-stat-lbl">Guardrail Hits</span></div>
+                    </div>
+                    <button id="export-pdf-btn" class="export-pdf-btn" title="Export PDF Report" disabled>
+                        <i class="fa-solid fa-file-arrow-down"></i>
+                        <span>Export PDF</span>
+                    </button>
+                    <button id="theme-toggle-btn" class="theme-toggle-btn" title="Toggle Theme" aria-label="Toggle Theme">
+                        <i id="theme-toggle-icon" class="fa-solid fa-moon"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- ── TAB: DASHBOARD ─────────────────────────────── -->
+            <section id="dashboard-tab" class="tab active">
+                <div class="dash-single-col">
+                    <!-- Dashboard mode toggle strip -->
+                    <div class="dash-mode-strip">
+                        <button class="dash-mode-btn active" id="dash-mode-single" data-mode="single">
+                            <i class="fa-solid fa-magnifying-glass-dna"></i> Interpret New Variant
+                        </button>
+                        <button class="dash-mode-btn" id="dash-mode-batch" data-mode="batch">
+                            <i class="fa-solid fa-layer-group"></i> Batch VCF Processing
+                        </button>
+                    </div>
+
+                    <!-- Submit card (Single Variant) -->
+                    <div class="card glass submit-card" id="single-variant-card">
+                        <div class="card-hd"><i class="fa-solid fa-plus text-indigo"></i> Interpret New Variant</div>
+                        <div class="card-bd">
+                            <form id="analyze-form">
+                                <div class="fgroup">
+                                    <label for="variant-query">ClinVar ID / HGVS Coordinate</label>
+                                    <div class="input-wrap">
+                                        <i class="fa-solid fa-search input-icon"></i>
+                                        <input type="text" id="variant-query" placeholder="e.g. 55476  or  NM_007294.4:c.5096G>A" autocomplete="off">
+                                    </div>
+                                    <p class="hint">Supports NCBI ClinVar IDs or HGVS coding notation. PII is auto-scrubbed before transmission.</p>
+                                    <p class="variant-error-msg" id="variant-error" aria-live="polite"></p>
+                                </div>
+                                <button type="submit" class="btn btn-indigo btn-full" id="submit-btn">
+                                    <i class="fa-solid fa-play"></i> Launch Multi-Agent Pipeline
+                                </button>
+                            </form>
+
+                            <div class="demo-section">
+                                <div class="demo-label">Quick Demo Variants</div>
+                                <div class="demo-grid">
+                                    <button class="demo-btn oncogenic" data-query="55476">
+                                        <span class="demo-gene">BRCA1</span>
+                                        <span class="demo-name">Arg1700Gln</span>
+                                        <span class="chip chip-warning">HITL</span>
+                                    </button>
+                                    <button class="demo-btn oncogenic" data-query="37677">
+                                        <span class="demo-gene">BRCA2</span>
+                                        <span class="demo-name">c.5946delT</span>
+                                        <span class="chip chip-danger">PATH</span>
+                                    </button>
+                                    <button class="demo-btn oncogenic" data-query="12347">
+                                        <span class="demo-gene">TP53</span>
+                                        <span class="demo-name">Arg248Gln</span>
+                                        <span class="chip chip-danger">PATH</span>
+                                    </button>
+                                    <button class="demo-btn benign" data-query="99999">
+                                        <span class="demo-gene">TP53</span>
+                                        <span class="demo-name">Gly108Gly</span>
+                                        <span class="chip chip-success">BENIGN</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Batch VCF card (hidden by default) -->
+                    <div class="card glass" id="batch-vcf-card" style="display:none">
+                        <div class="card-hd"><i class="fa-solid fa-layer-group text-indigo"></i> Batch VCF Processing
+                            <span class="chip chip-info" style="font-size:.6rem;margin-left:.5rem">Multi-Agent Parallel</span>
+                        </div>
+                        <div class="card-bd">
+                            <!-- Drag-and-drop zone -->
+                            <div class="vcf-dropzone" id="vcf-dropzone">
+                                <input type="file" id="vcf-file-input" accept=".vcf,.txt" aria-label="Upload VCF file">
+                                <i class="fa-solid fa-file-dna vcf-drop-icon"></i>
+                                <div class="vcf-drop-title">Drop your VCF or TXT file here</div>
+                                <div class="vcf-drop-sub">
+                                    Accepts <strong>.vcf</strong> and <strong>.txt</strong> variant files &nbsp;·&nbsp;
+                                    Click to browse &nbsp;·&nbsp; Max 10 MB<br>
+                                    Each variant line will be routed through the multi-agent classification pipeline in parallel.
+                                </div>
+                            </div>
+
+                            <!-- Progress section (hidden until file loaded) -->
+                            <div class="vcf-progress-section" id="vcf-progress-section">
+                                <div class="vcf-progress-header">
+                                    <div class="vcf-progress-label">
+                                        <i class="fa-solid fa-circle-notch fa-spin" id="vcf-progress-spin"></i>
+                                        <span id="vcf-progress-label-text">Initialising parallel agent workflows…</span>
+                                    </div>
+                                    <span class="vcf-progress-pct" id="vcf-progress-pct">0%</span>
+                                </div>
+                                <div class="vcf-progress-track">
+                                    <div class="vcf-progress-fill" id="vcf-progress-fill"></div>
+                                </div>
+                                <div class="vcf-agents-row" id="vcf-agents-row">
+                                    <div class="vcf-agent-chip" id="vac-monitor"><i class="fa-solid fa-satellite-dish"></i> MonitorAgent</div>
+                                    <div class="vcf-agent-chip" id="vac-calc"><i class="fa-solid fa-calculator"></i> CalculationAgent</div>
+                                    <div class="vcf-agent-chip" id="vac-loop"><i class="fa-solid fa-arrows-rotate"></i> LoopAgent</div>
+                                    <div class="vcf-agent-chip" id="vac-policy"><i class="fa-solid fa-shield-halved"></i> PolicyAgent</div>
+                                    <div class="vcf-agent-chip" id="vac-debug"><i class="fa-solid fa-bug-slash"></i> DebugAgent</div>
+                                </div>
+                            </div>
+
+                            <!-- Results table (hidden until processing done) -->
+                            <div class="vcf-results-section" id="vcf-results-section">
+                                <div class="vcf-results-hd">
+                                    <div class="vcf-results-title">
+                                        <i class="fa-solid fa-table-list text-indigo"></i>
+                                        Batch Classification Results
+                                        <span class="vcf-results-count" id="vcf-results-count">0 variants</span>
+                                    </div>
+                                    <button class="vcf-clear-btn" id="vcf-clear-btn">
+                                        <i class="fa-solid fa-trash"></i> Clear
+                                    </button>
+                                </div>
+                                <div class="batch-table-wrap">
+                                    <div class="batch-table-viewport" id="batch-table-viewport">
+                                        <table class="batch-table" id="batch-results-table">
+                                            <colgroup>
+                                                <col class="col-gene">
+                                                <col class="col-variant">
+                                                <col class="col-cat">
+                                                <col class="col-freq">
+                                            </colgroup>
+                                            <thead>
+                                                <tr class="filter-row">
+                                                    <th><input class="batch-filter-input" id="bf-gene" placeholder="Filter gene…" autocomplete="off"></th>
+                                                    <th><input class="batch-filter-input" id="bf-variant" placeholder="Filter variant…" autocomplete="off"></th>
+                                                    <th>
+                                                        <select class="batch-filter-select" id="bf-category">
+                                                            <option value="">All Categories</option>
+                                                            <option value="Pathogenic">Pathogenic</option>
+                                                            <option value="Likely Pathogenic">Likely Pathogenic</option>
+                                                            <option value="VUS">VUS</option>
+                                                            <option value="Likely Benign">Likely Benign</option>
+                                                            <option value="Benign">Benign</option>
+                                                        </select>
+                                                    </th>
+                                                    <th><input class="batch-filter-input" id="bf-freq" placeholder="e.g. &lt;0.01…" autocomplete="off"></th>
+                                                </tr>
+                                                <tr class="header-row">
+                                                    <th class="sortable" data-col="gene">Gene <span class="sort-icon">▲▼</span></th>
+                                                    <th class="sortable" data-col="variant">Variant String <span class="sort-icon">▲▼</span></th>
+                                                    <th class="sortable" data-col="category">Primary Category <span class="sort-icon">▲▼</span></th>
+                                                    <th class="sortable" data-col="freq">Global AF (gnomAD) <span class="sort-icon">▲▼</span></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="batch-results-tbody">
+                                                <tr class="vcf-empty-row"><td colspan="4">Upload a VCF file to see batch results.</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── TAB: BATCH VCF PROCESSING (standalone deep-link tab) ── -->
+            <section id="batch-vcf-tab" class="tab">
+                <div class="card glass">
+                    <div class="card-hd"><i class="fa-solid fa-layer-group text-indigo"></i> Batch VCF Processing
+                        <span class="chip chip-info" style="font-size:.6rem;margin-left:.5rem">Multi-Agent Parallel</span>
+                    </div>
+                    <div class="card-bd">
+                        <div class="vcf-dropzone" id="vcf-dropzone-tab">
+                            <input type="file" id="vcf-file-input-tab" accept=".vcf,.txt" aria-label="Upload VCF file">
+                            <i class="fa-solid fa-file-dna vcf-drop-icon"></i>
+                            <div class="vcf-drop-title">Drop your VCF or TXT file here</div>
+                            <div class="vcf-drop-sub">
+                                Accepts <strong>.vcf</strong> and <strong>.txt</strong> variant files &nbsp;·&nbsp;
+                                Click to browse &nbsp;·&nbsp; Max 10 MB<br>
+                                Each variant line routed through the full 5-agent classification pipeline in parallel.
+                            </div>
+                        </div>
+                        <div class="vcf-progress-section" id="vcf-progress-section-tab">
+                            <div class="vcf-progress-header">
+                                <div class="vcf-progress-label">
+                                    <i class="fa-solid fa-circle-notch fa-spin" id="vcf-progress-spin-tab"></i>
+                                    <span id="vcf-progress-label-text-tab">Initialising parallel agent workflows…</span>
+                                </div>
+                                <span class="vcf-progress-pct" id="vcf-progress-pct-tab">0%</span>
+                            </div>
+                            <div class="vcf-progress-track">
+                                <div class="vcf-progress-fill" id="vcf-progress-fill-tab"></div>
+                            </div>
+                            <div class="vcf-agents-row">
+                                <div class="vcf-agent-chip" id="vac-monitor-tab"><i class="fa-solid fa-satellite-dish"></i> MonitorAgent</div>
+                                <div class="vcf-agent-chip" id="vac-calc-tab"><i class="fa-solid fa-calculator"></i> CalculationAgent</div>
+                                <div class="vcf-agent-chip" id="vac-loop-tab"><i class="fa-solid fa-arrows-rotate"></i> LoopAgent</div>
+                                <div class="vcf-agent-chip" id="vac-policy-tab"><i class="fa-solid fa-shield-halved"></i> PolicyAgent</div>
+                                <div class="vcf-agent-chip" id="vac-debug-tab"><i class="fa-solid fa-bug-slash"></i> DebugAgent</div>
+                            </div>
+                        </div>
+                        <div class="vcf-results-section" id="vcf-results-section-tab">
+                            <div class="vcf-results-hd">
+                                <div class="vcf-results-title">
+                                    <i class="fa-solid fa-table-list text-indigo"></i>
+                                    Batch Classification Results
+                                    <span class="vcf-results-count" id="vcf-results-count-tab">0 variants</span>
+                                </div>
+                                <button class="vcf-clear-btn" id="vcf-clear-btn-tab">
+                                    <i class="fa-solid fa-trash"></i> Clear
+                                </button>
+                            </div>
+                            <div class="batch-table-wrap">
+                                <div class="batch-table-viewport" id="batch-table-viewport-tab">
+                                    <table class="batch-table" id="batch-results-table-tab">
+                                        <colgroup>
+                                            <col class="col-gene">
+                                            <col class="col-variant">
+                                            <col class="col-cat">
+                                            <col class="col-freq">
+                                        </colgroup>
+                                        <thead>
+                                            <tr class="filter-row">
+                                                <th><input class="batch-filter-input" id="bf-gene-tab" placeholder="Filter gene…" autocomplete="off"></th>
+                                                <th><input class="batch-filter-input" id="bf-variant-tab" placeholder="Filter variant…" autocomplete="off"></th>
+                                                <th>
+                                                    <select class="batch-filter-select" id="bf-category-tab">
+                                                        <option value="">All Categories</option>
+                                                        <option value="Pathogenic">Pathogenic</option>
+                                                        <option value="Likely Pathogenic">Likely Pathogenic</option>
+                                                        <option value="VUS">VUS</option>
+                                                        <option value="Likely Benign">Likely Benign</option>
+                                                        <option value="Benign">Benign</option>
+                                                    </select>
+                                                </th>
+                                                <th><input class="batch-filter-input" id="bf-freq-tab" placeholder="e.g. &lt;0.01…" autocomplete="off"></th>
+                                            </tr>
+                                            <tr class="header-row">
+                                                <th class="sortable" data-col="gene">Gene <span class="sort-icon">▲▼</span></th>
+                                                <th class="sortable" data-col="variant">Variant String <span class="sort-icon">▲▼</span></th>
+                                                <th class="sortable" data-col="category">Primary Category <span class="sort-icon">▲▼</span></th>
+                                                <th class="sortable" data-col="freq">Global AF (gnomAD) <span class="sort-icon">▲▼</span></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="batch-results-tbody-tab">
+                                            <tr class="vcf-empty-row"><td colspan="4">Upload a VCF file to see batch results.</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── TAB: ANALYSIS HISTORY ──────────────────────── -->
+            <section id="history-tab" class="tab">
+                <div class="card glass history-card">
+                    <div class="card-hd"><i class="fa-solid fa-clock-rotate-left text-cyan"></i> Analysis History
+                        <button class="btn btn-xs btn-ghost" id="refresh-history-btn"><i class="fa-solid fa-arrows-rotate"></i></button>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="data-table" id="history-table">
+                            <thead><tr>
+                                <th>Run ID</th><th>Query</th><th>Gene</th><th>HGVS</th>
+                                <th>Classification</th><th>Confidence</th><th>Status</th><th></th>
+                            </tr></thead>
+                            <tbody id="history-tbody">
+                                <tr><td colspan="8" class="empty-row">No runs yet — launch a pipeline above.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── TAB: ANALYSIS WORKSPACE ───────────────────── -->
+            <section id="analysis-tab" class="tab">
+                <div class="workspace-grid">
+                    <!-- Left: Agent Graph + Terminal -->
+                    <div class="ws-left">
+                        <!-- Agent pipeline graph -->
+                        <div class="card glass">
+                            <div class="card-hd">
+                                <i class="fa-solid fa-sitemap text-indigo"></i> Multi-Agent Graph
+                                <span class="run-badge" id="active-run-badge">No Active Run</span>
+                            </div>
+                            <div class="card-bd">
+                                <div class="agent-graph" id="agent-graph">
+                                    <div class="agent-node" id="node-MonitorAgent" data-agent="MonitorAgent">
+                                        <div class="node-glow"></div>
+                                        <div class="node-icon"><i class="fa-solid fa-satellite-dish"></i></div>
+                                        <div class="node-info">
+                                            <h4>MonitorAgent</h4>
+                                            <p>ClinVar · PubMed · MCP</p>
+                                        </div>
+                                        <div class="node-status"><i class="fa-solid fa-clock"></i></div>
+                                    </div>
+                                    <div class="agent-connector"></div>
+                                    <div class="agent-node" id="node-CalculationAgent" data-agent="CalculationAgent">
+                                        <div class="node-glow"></div>
+                                        <div class="node-icon"><i class="fa-solid fa-calculator"></i></div>
+                                        <div class="node-info">
+                                            <h4>CalculationAgent</h4>
+                                            <p>HGVS · Domain · Math</p>
+                                        </div>
+                                        <div class="node-status"><i class="fa-solid fa-clock"></i></div>
+                                    </div>
+                                    <div class="agent-connector"></div>
+                                    <div class="agent-node" id="node-LoopAgent" data-agent="LoopAgent">
+                                        <div class="node-glow"></div>
+                                        <div class="node-icon"><i class="fa-solid fa-arrows-rotate"></i></div>
+                                        <div class="node-info">
+                                            <h4>LoopAgent</h4>
+                                            <p>Self-Correcting Loop</p>
+                                        </div>
+                                        <div class="node-status"><i class="fa-solid fa-clock"></i></div>
+                                    </div>
+                                    <div class="agent-connector"></div>
+                                    <div class="agent-node" id="node-PolicyAgent" data-agent="PolicyAgent">
+                                        <div class="node-glow"></div>
+                                        <div class="node-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                                        <div class="node-info">
+                                            <h4>PolicyAgent</h4>
+                                            <p>HITL · Guardrail · RBAC</p>
+                                        </div>
+                                        <div class="node-status"><i class="fa-solid fa-clock"></i></div>
+                                    </div>
+                                    <!-- DebugAgent as overlay node -->
+                                    <div class="debug-node" id="node-DebugAgent">
+                                        <div class="node-icon"><i class="fa-solid fa-bug-slash"></i></div>
+                                        <span>DebugAgent — Always Active (3-retry sandbox)</span>
+                                        <div class="node-status" id="debug-node-status"><i class="fa-solid fa-shield-virus"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live terminal -->
+                        <div class="card glass">
+                            <div class="card-hd">
+                                <i class="fa-solid fa-terminal text-green"></i> Agent Logs Console
+                                <button class="btn btn-xs btn-ghost" id="clear-console-btn"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                            <div class="terminal-wrap">
+                                <div class="terminal" id="terminal">
+                                    <span class="t-sys">[SYSTEM] CVA Terminal ready. Awaiting pipeline...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Result panels -->
+                    <div class="ws-right">
+                        <!-- Empty state -->
+                        <div id="ws-empty" class="ws-empty">
+                            <i class="fa-solid fa-dna ws-empty-icon"></i>
+                            <h2>No Active Analysis</h2>
+                            <p>Submit a variant from the Dashboard, or pick a demo to watch the 5-agent pipeline execute in real time.</p>
+                        </div>
+
+                        <!-- Loaded view -->
+                        <div id="ws-loaded" style="display:none">
+
+                            <!-- HITL Glassmorphic Portal -->
+                            <div class="hitl-portal" id="hitl-portal" style="display:none">
+                                <div class="hitl-portal-header">
+                                    <i class="fa-solid fa-triangle-exclamation fa-beat-fade"></i>
+                                    <div>
+                                        <h3>PolicyAgent — HITL Safety Gate Activated</h3>
+                                        <p id="hitl-portal-reason">Confidence threshold exceeded or conflicting literature assertions detected.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Side-by-side conflict view -->
+                                <div class="conflict-grid" id="conflict-grid">
+                                    <div class="conflict-panel clinvar-panel">
+                                        <div class="conflict-panel-hd"><i class="fa-solid fa-database"></i> ClinVar Record</div>
+                                        <div class="conflict-panel-bd" id="conflict-clinvar">Loading ClinVar data...</div>
+                                    </div>
+                                    <div class="conflict-panel pubmed-panel">
+                                        <div class="conflict-panel-hd"><i class="fa-solid fa-book-open-reader"></i> PubMed Literature</div>
+                                        <div class="conflict-panel-bd" id="conflict-pubmed">Loading literature...</div>
+                                    </div>
+                                </div>
+
+                                <div class="hitl-actions">
+                                    <button class="btn btn-success" id="hitl-approve-btn">
+                                        <i class="fa-solid fa-check-circle"></i> Approve Classification
+                                    </button>
+                                    <button class="btn btn-warning" id="hitl-override-toggle">
+                                        <i class="fa-solid fa-pen-to-square"></i> Override & Adjust
+                                    </button>
+                                </div>
+
+                                <div class="override-drawer" id="override-drawer" style="display:none">
+                                    <div class="fgroup">
+                                        <label for="override-class">Override Classification</label>
+                                        <select id="override-class" class="form-select">
+                                            <option value="Pathogenic">Pathogenic</option>
+                                            <option value="Likely Pathogenic">Likely Pathogenic</option>
+                                            <option value="VUS">Variant of Uncertain Significance (VUS)</option>
+                                            <option value="Likely Benign">Likely Benign</option>
+                                            <option value="Benign">Benign</option>
+                                        </select>
+                                    </div>
+                                    <div class="fgroup">
+                                        <label for="override-rationale">Clinical Rationale (required)</label>
+                                        <textarea id="override-rationale" class="form-textarea" rows="2" placeholder="Describe your clinical reasoning..."></textarea>
+                                    </div>
+                                    <div class="fgroup">
+                                        <label for="actor-role">Your Role</label>
+                                        <select id="actor-role" class="form-select">
+                                            <option value="TECHNICIAN">Clinical Technician</option>
+                                            <option value="PATHOLOGIST">Molecular Pathologist</option>
+                                        </select>
+                                    </div>
+                                    <button class="btn btn-indigo" id="hitl-override-submit">Submit Override</button>
+                                </div>
+                            </div>
+
+                            <!-- Variant header -->
+                            <div class="variant-header">
+                                <div class="variant-header-left">
+                                    <span class="gene-chip" id="vh-gene">BRCA1</span>
+                                    <h2 id="vh-title">Variant Analysis</h2>
+                                    <p id="vh-hgvs" class="vh-hgvs mono">--</p>
+                                </div>
+                                <div class="confidence-gauge-wrap">
+                                    <svg viewBox="0 0 36 36" class="conf-ring">
+                                        <path class="ring-bg" d="M18 2.0845 a15.9155 15.9155 0 0 1 0 31.831 a15.9155 15.9155 0 0 1 0 -31.831"/>
+                                        <path class="ring-fill" id="conf-ring-fill" stroke-dasharray="0,100"
+                                              d="M18 2.0845 a15.9155 15.9155 0 0 1 0 31.831 a15.9155 15.9155 0 0 1 0 -31.831"/>
+                                        <text x="18" y="20" class="ring-pct" id="conf-ring-pct">0%</text>
+                                    </svg>
+                                    <div class="conf-label">
+                                        <span class="conf-title">Confidence</span>
+                                        <span class="conf-class" id="conf-class">—</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Inner workspace tabs -->
+                            <div class="ws-tabs">
+                                <button class="ws-tab active" data-wstab="wst-summary">Summary</button>
+                                <button class="ws-tab" data-wstab="wst-math">Alignment</button>
+                                <button class="ws-tab" data-wstab="wst-lit">Literature</button>
+                                <button class="ws-tab" data-wstab="wst-memory">Memory</button>
+                            </div>
+
+                            <!-- Summary -->
+                            <div class="wst-panel active" id="wst-summary">
+                                <div class="info-chips" id="info-chips">
+                                    <div class="info-chip"><span class="ic-lbl">ClinVar ID</span><span class="ic-val mono" id="ic-clinvar">—</span></div>
+                                    <div class="info-chip"><span class="ic-lbl">HGVS-c</span><span class="ic-val mono" id="ic-hgvsc">—</span></div>
+                                    <div class="info-chip"><span class="ic-lbl">HGVS-p</span><span class="ic-val mono" id="ic-hgvsp">—</span></div>
+                                    <div class="info-chip"><span class="ic-lbl">Review Status</span><span class="ic-val" id="ic-review">—</span></div>
+                                </div>
+                                <div class="context-block">
+                                    <div class="ctx-row"><span class="ctx-lbl">Functional Assessment</span><span class="ctx-val" id="ctx-functional">—</span></div>
+                                    <div class="ctx-row"><span class="ctx-lbl">ClinVar Significance</span><span class="ctx-val" id="ctx-clinvar">—</span></div>
+                                    <div class="ctx-row"><span class="ctx-lbl">Literature Summary</span><span class="ctx-val" id="ctx-lit">—</span></div>
+                                    <div class="ctx-row"><span class="ctx-lbl">Memory Recall</span><span class="ctx-val" id="ctx-memory">No prior history found.</span></div>
+                                </div>
+
+                                <!-- ── FEATURE 1: Evidence Blueprint (injected by JS on completion) ── -->
+                                <div id="evidence-blueprint-section"></div>
+
+                                <!-- ── FEATURE 2: ACMG Checklist (injected by JS on completion) ── -->
+                                <div id="acmg-checklist-section"></div>
+                            </div>
+
+                            <!-- Alignment -->
+                            <div class="wst-panel" id="wst-math">
+                                <div class="math-two-col">
+                                    <div class="math-block glass">
+                                        <h4>Coordinate Resolution</h4>
+                                        <div class="math-row"><span>Codon Position</span><span class="mono" id="m-codon">—</span></div>
+                                        <div class="math-row"><span>Functional Domain</span><span class="text-indigo" id="m-domain">—</span></div>
+                                        <div class="math-row"><span>Critical Domain</span><span id="m-critical">—</span></div>
+                                        <div class="math-row"><span>Variant Type</span><span id="m-type">—</span></div>
+                                    </div>
+                                    <div class="math-block glass">
+                                        <h4>Biochemical Properties</h4>
+                                        <div class="prop-bar-group"><label>Charge Shift</label><div class="prop-bar-track"><div class="prop-bar-fill indigo" id="m-charge-bar" style="width:50%"></div></div><span class="mono" id="m-charge-val">—</span></div>
+                                        <div class="prop-bar-group"><label>Hydrophobicity Δ</label><div class="prop-bar-track"><div class="prop-bar-fill cyan" id="m-hydro-bar" style="width:50%"></div></div><span class="mono" id="m-hydro-val">—</span></div>
+                                        <div class="prop-bar-group"><label>Mass Δ (Da)</label><div class="prop-bar-track"><div class="prop-bar-fill amber" id="m-mass-bar" style="width:50%"></div></div><span class="mono" id="m-mass-val">—</span></div>
+                                    </div>
+                                </div>
+                                <div class="domain-diagram glass">
+                                    <h4>Protein Domain Map</h4>
+                                    <div class="domain-track" id="domain-track">
+                                        <div class="domain-baseline"></div>
+                                    </div>
+                                    <div class="domain-legend">
+                                        <span><span class="leg-box ncrit"></span> Non-Critical</span>
+                                        <span><span class="leg-box crit"></span> Critical</span>
+                                        <span><span class="leg-box variant"></span> Variant Position</span>
+                                    </div>
+                                    <p class="mono feas-desc" id="m-feas-desc">—</p>
+                                </div>
+                            </div>
+
+                            <!-- Literature -->
+                            <div class="wst-panel" id="wst-lit">
+                                <div class="lit-layout">
+                                    <div class="lit-list" id="lit-list"></div>
+                                    <div class="lit-reader glass">
+                                        <div class="lit-reader-hd">
+                                            <h4 id="lit-reader-title">Select a paper</h4>
+                                            <span class="chip" id="lit-reader-id">—</span>
+                                        </div>
+                                        <div class="lit-reader-body" id="lit-reader-body">Select a publication from the list to read its full text.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Memory -->
+                            <div class="wst-panel" id="wst-memory">
+                                <div class="memory-panel">
+                                    <h4><i class="fa-solid fa-brain text-indigo"></i> Cross-Session Memory</h4>
+                                    <div id="memory-prior-block" class="memory-prior-block">
+                                        <p class="text-muted">No prior evaluations found for this variant fingerprint.</p>
+                                    </div>
+                                    <h4 style="margin-top:1.5rem"><i class="fa-solid fa-shield text-cyan"></i> Guardrail Events (This Run)</h4>
+                                    <div id="guardrail-events-block" class="guardrail-block">
+                                        <p class="text-muted">No guardrail events for this run.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- /ws-loaded -->
+                    </div><!-- /ws-right -->
+                </div><!-- /workspace-grid -->
+            </section>
+
+            <!-- ── TAB: HITL QUEUE ────────────────────────────── -->
+            <section id="hitl-tab" class="tab">
+                <div class="card glass">
+                    <div class="card-hd"><i class="fa-solid fa-user-shield text-amber"></i> Human-In-The-Loop Queue</div>
+                    <div class="card-bd">
+                        <p class="hint mb-md">Runs paused by PolicyAgent for confidence ≥ 0.85 or conflicting literature assertions. Authorised technicians must confirm or override before execution resumes.</p>
+                        <div class="table-wrap">
+                            <table class="data-table" id="hitl-table">
+                                <thead><tr><th>Run ID</th><th>Query</th><th>Gene</th><th>Proposed Class</th><th>Conflict Reason</th><th>Time</th><th>Actions</th></tr></thead>
+                                <tbody id="hitl-tbody"><tr><td colspan="7" class="empty-row">No runs pending HITL review.</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── TAB: EVAL SUITE ────────────────────────────── -->
+            <section id="eval-tab" class="tab">
+                <div class="card glass" style="margin-bottom:1.5rem">
+                    <div class="card-hd"><i class="fa-solid fa-flask-vial text-cyan"></i> Automated Evaluation Suite — 20 Fixtures</div>
+                    <div class="card-bd">
+                        <div class="eval-controls">
+                            <div class="eval-filter-group" id="eval-filter-group">
+                                <button class="chip chip-toggle active" data-cat="ALL">All (20)</button>
+                                <button class="chip chip-toggle" data-cat="ONCOGENIC">Oncogenic (5)</button>
+                                <button class="chip chip-toggle" data-cat="BENIGN">Benign (5)</button>
+                                <button class="chip chip-toggle" data-cat="EDGE">Edge/VUS (5)</button>
+                                <button class="chip chip-toggle" data-cat="ASYMMETRIC">Asymmetric (5)</button>
+                            </div>
+                            <button class="btn btn-indigo" id="run-all-eval-btn">
+                                <i class="fa-solid fa-play"></i> Run All 20 Fixtures
+                            </button>
+                        </div>
+                        <div class="table-wrap" style="margin-top:1.25rem">
+                            <table class="data-table" id="eval-table">
+                                <thead><tr><th>ID</th><th>Category</th><th>Gene</th><th>HGVS-c</th><th>Expected</th><th>HITL?</th><th>Conflict?</th><th>Description</th><th></th></tr></thead>
+                                <tbody id="eval-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── TAB: AUDIT & SECURITY ──────────────────────── -->
+            <section id="security-tab" class="tab">
+                <div class="security-grid">
+                    <div class="card glass">
+                        <div class="card-hd"><i class="fa-solid fa-link text-indigo"></i> SHA-256 Audit Chain</div>
+                        <div class="card-bd">
+                            <p class="hint mb-md">Every agent state transition, HITL override, and DebugAgent patch is hashed and chained into an immutable ledger.</p>
+                            <div class="table-wrap">
+                                <table class="data-table" id="audit-table">
+                                    <thead><tr><th>Time</th><th>Event</th><th>Agent</th><th>Actor</th><th>Prev Hash</th><th>Curr Hash</th></tr></thead>
+                                    <tbody id="audit-tbody"><tr><td colspan="6" class="empty-row">No audit entries yet.</td></tr></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card glass">
+                        <div class="card-hd"><i class="fa-solid fa-shield-halved text-amber"></i> Guardrail Violations</div>
+                        <div class="card-bd">
+                            <div class="table-wrap">
+                                <table class="data-table" id="guard-table">
+                                    <thead><tr><th>Time</th><th>Direction</th><th>Type</th><th>Severity</th><th>Detail</th></tr></thead>
+                                    <tbody id="guard-tbody"><tr><td colspan="5" class="empty-row">No violations logged.</td></tr></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── TAB: TELEMETRY MATRIX ──────────────────────── -->
+            <section id="telemetry-tab" class="tab">
+                <div class="telemetry-grid">
+                    <div class="card glass">
+                        <div class="card-hd"><i class="fa-solid fa-microchip text-cyan"></i> CVA Node Health</div>
+                        <div class="card-bd">
+                            <div class="tele-metrics">
+                                <div class="tele-metric"><span class="tm-label">CPU</span><span class="tm-val" id="tele-cpu">—</span></div>
+                                <div class="tele-metric"><span class="tm-label">RAM</span><span class="tm-val" id="tele-ram">—</span></div>
+                                <div class="tele-metric"><span class="tm-label">DB Size</span><span class="tm-val" id="tele-db">—</span></div>
+                                <div class="tele-metric success"><span class="tm-label">Completed</span><span class="tm-val" id="tele-completed">0</span></div>
+                                <div class="tele-metric danger"><span class="tm-label">Failed</span><span class="tm-val" id="tele-failed">0</span></div>
+                                <div class="tele-metric warning"><span class="tm-label">Errors</span><span class="tm-val" id="tele-errors">0</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card glass">
+                        <div class="card-hd"><i class="fa-solid fa-code text-indigo"></i> Self-Debug Patch Log</div>
+                        <div class="card-bd">
+                            <div class="table-wrap">
+                                <table class="data-table" id="patch-table">
+                                    <thead><tr><th>Time</th><th>Run</th><th>Agent</th><th>Error Type</th><th>Attempt</th><th>Result</th><th>SHA-256</th></tr></thead>
+                                    <tbody id="patch-tbody"><tr><td colspan="7" class="empty-row">No patch events yet.</td></tr></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card glass col-span-2">
+                        <div class="card-hd"><i class="fa-solid fa-heartbeat text-amber"></i> Recent Agent Events</div>
+                        <div class="card-bd">
+                            <div class="table-wrap">
+                                <table class="data-table">
+                                    <thead><tr><th>Time</th><th>Run</th><th>Agent</th><th>Level</th><th>Message</th></tr></thead>
+                                    <tbody id="tele-events-tbody"><tr><td colspan="5" class="empty-row">No events yet.</td></tr></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
