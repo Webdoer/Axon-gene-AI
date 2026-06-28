@@ -1,4 +1,4 @@
-/* ══════════════════════════════════════════════════════════════════════
+﻿/* ══════════════════════════════════════════════════════════════════════
    Axon gene AI v2  |  Arcade-Inspired Premium Light Theme
    Palette: Royal Blue #2563eb · Sky #38bdf8 · Off-white #f8faff
    ══════════════════════════════════════════════════════════════════════ */
@@ -3227,6 +3227,11 @@ body.sidebar-open {
 
 @media (max-width: 768px) {
 
+    /* Hide the desktop in-topbar toggle — mobile uses the floating btn */
+    .sidebar-toggle-btn {
+        display: none;
+    }
+
     .app-shell {
         flex-direction: column;
         overflow: visible;
@@ -3260,18 +3265,18 @@ body.sidebar-open {
     }
 
     .sidebar-backdrop {
-        display: block;
+        display: none;
         position: fixed;
         inset: 0;
         z-index: 199;
         background: rgba(0, 0, 0, 0.35);
-        backdrop-filter: blur(2px);
-        opacity: 0;
         pointer-events: none;
         transition: opacity 0.25s ease;
+        opacity: 0;
     }
 
     .sidebar-backdrop.visible {
+        display: block;
         opacity: 1;
         pointer-events: auto;
     }
@@ -3438,3 +3443,4 @@ body.sidebar-open {
 @media (min-width: 769px) {
     .mobile-bottom-nav { display: none !important; }
 }
+
