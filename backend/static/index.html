@@ -36,6 +36,9 @@
         <i class="fa-solid fa-bars"></i>
     </button>
 
+    <!-- Mobile Sidebar Backdrop -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
     <div class="app-shell">
         <!-- ── SIDEBAR (Gemini-style in-flex) ────────────────────────── -->
         <aside class="sidebar" id="sidebar">
@@ -778,7 +781,111 @@
         </main>
     </div>
 
+    <!-- ── Mobile Bottom Navigation Bar ────────────────────────────── -->
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Mobile navigation">
+        <button class="mob-nav-item active" data-tab="dashboard-tab" aria-label="Dashboard">
+            <i class="fa-solid fa-chart-network"></i>
+            Dashboard
+        </button>
+        <button class="mob-nav-item" data-tab="analysis-tab" aria-label="Analysis">
+            <i class="fa-solid fa-magnifying-glass-dna"></i>
+            Analysis
+        </button>
+        <button class="mob-nav-item" data-tab="hitl-tab" aria-label="HITL Gate">
+            <i class="fa-solid fa-user-shield"></i>
+            HITL
+            <span class="mob-badge" id="mob-hitl-badge" style="display:none">0</span>
+        </button>
+        <button class="mob-nav-item" data-tab="history-tab" aria-label="History">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            History
+        </button>
+        <button class="mob-nav-item" data-tab="security-tab" aria-label="Security">
+            <i class="fa-solid fa-lock"></i>
+            Security
+        </button>
+    </nav>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
     <script src="/static/js/app.js"></script>
+
+    <!-- ── Mobile Sidebar & Bottom Nav Wiring ──────────────────────── -->
+    <script>
+    (function() {
+        var sidebar   = document.getElementById('sidebar');
+        var backdrop  = document.getElementById('sidebar-backdrop');
+        var openBtn   = document.getElementById('sidebar-open-btn');
+        var isMobile  = function() { return window.innerWidth <= 768; };
+
+        function openMobileSidebar() {
+            sidebar.classList.add('mobile-open');
+            backdrop.classList.add('visible');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileSidebar() {
+            sidebar.classList.remove('mobile-open');
+            backdrop.classList.remove('visible');
+            document.body.style.overflow = '';
+        }
+
+        // Hamburger open btn always opens drawer on mobile
+        openBtn.addEventListener('click', function() {
+            if (isMobile()) {
+                openMobileSidebar();
+            }
+        });
+
+        // Backdrop click closes drawer
+        backdrop.addEventListener('click', closeMobileSidebar);
+
+        // Nav items inside sidebar also close the drawer on mobile
+        sidebar.querySelectorAll('.nav-item').forEach(function(el) {
+            el.addEventListener('click', function() {
+                if (isMobile()) closeMobileSidebar();
+            });
+        });
+
+        // Mobile bottom nav: switch tabs + sync active state
+        var mobNav = document.getElementById('mobile-bottom-nav');
+        if (mobNav) {
+            mobNav.querySelectorAll('.mob-nav-item').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var tabId = btn.getAttribute('data-tab');
+                    if (!tabId) return;
+
+                    // Deactivate all tabs
+                    document.querySelectorAll('.tab').forEach(function(t) {
+                        t.classList.remove('active');
+                    });
+                    // Activate target tab
+                    var target = document.getElementById(tabId);
+                    if (target) target.classList.add('active');
+
+                    // Sync sidebar nav active state
+                    document.querySelectorAll('.nav-item').forEach(function(n) {
+                        n.classList.remove('active');
+                    });
+                    var sideItem = document.querySelector('.nav-item[data-tab="' + tabId + '"]');
+                    if (sideItem) sideItem.classList.add('active');
+
+                    // Sync bottom nav active state
+                    mobNav.querySelectorAll('.mob-nav-item').forEach(function(b) {
+                        b.classList.remove('active');
+                    });
+                    btn.classList.add('active');
+                });
+            });
+        }
+
+        // On resize: clean up mobile state if going to desktop
+        window.addEventListener('resize', function() {
+            if (!isMobile()) {
+                closeMobileSidebar();
+                document.body.style.overflow = '';
+            }
+        });
+    })();
+    </script>
 </body>
 </html>
