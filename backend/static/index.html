@@ -31,10 +31,7 @@
         <div class="grid-overlay"></div>
     </div>
 
-    <!-- Floating Fallback Button (fades in only when sidebar is fully collapsed) -->
-    <button class="sidebar-open-btn" id="sidebar-open-btn" aria-label="Open navigation">
-        <i class="fa-solid fa-bars"></i>
-    </button>
+
 
     <!-- Mobile Sidebar Backdrop -->
     <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
@@ -814,35 +811,29 @@
     (function() {
         var sidebar   = document.getElementById('sidebar');
         var backdrop  = document.getElementById('sidebar-backdrop');
-        var openBtn   = document.getElementById('sidebar-open-btn');
         var isMobile  = function() { return window.innerWidth <= 768; };
 
-        function openMobileSidebar() {
-            sidebar.classList.add('mobile-open');
-            backdrop.classList.add('visible');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeMobileSidebar() {
+        // Close helper (mirrors app.js closeMobileDrawer for use here)
+        function closeMobileDrawer() {
+            var toggle = document.getElementById('sidebar-toggle');
             sidebar.classList.remove('mobile-open');
-            backdrop.classList.remove('visible');
+            if (backdrop) backdrop.classList.remove('visible');
             document.body.style.overflow = '';
-        }
-
-        // Hamburger open btn always opens drawer on mobile
-        openBtn.addEventListener('click', function() {
-            if (isMobile()) {
-                openMobileSidebar();
+            if (toggle) {
+                var icon = toggle.querySelector('i');
+                if (icon) icon.className = 'fa-solid fa-bars';
             }
-        });
+        }
 
         // Backdrop click closes drawer
-        backdrop.addEventListener('click', closeMobileSidebar);
+        if (backdrop) {
+            backdrop.addEventListener('click', closeMobileDrawer);
+        }
 
         // Nav items inside sidebar also close the drawer on mobile
         sidebar.querySelectorAll('.nav-item').forEach(function(el) {
             el.addEventListener('click', function() {
-                if (isMobile()) closeMobileSidebar();
+                if (isMobile()) closeMobileDrawer();
             });
         });
 
@@ -874,17 +865,12 @@
                         b.classList.remove('active');
                     });
                     btn.classList.add('active');
+
+                    // Close drawer when navigating via bottom nav
+                    if (isMobile()) closeMobileDrawer();
                 });
             });
         }
-
-        // On resize: clean up mobile state if going to desktop
-        window.addEventListener('resize', function() {
-            if (!isMobile()) {
-                closeMobileSidebar();
-                document.body.style.overflow = '';
-            }
-        });
     })();
     </script>
 </body>

@@ -169,27 +169,64 @@ document.addEventListener("DOMContentLoaded", () => {
 
     navItems.forEach(n => n.addEventListener("click", e => { e.preventDefault(); switchTab(n.dataset.tab); }));
 
-    // Sidebar toggle — Gemini-style in-flex
+    // Sidebar toggle — smart: mobile drawer OR desktop in-flex collapse
     const sidebarToggle = $("sidebar-toggle");
-    const sidebarOpenBtn = $("sidebar-open-btn");
+
+    function isMobileViewport() { return window.innerWidth <= 768; }
+
+    function openMobileDrawer() {
+        const backdrop = document.getElementById('sidebar-backdrop');
+        sidebar.classList.add('mobile-open');
+        if (backdrop) backdrop.classList.add('visible');
+        document.body.style.overflow = 'hidden';
+        if (sidebarToggle) {
+            const icon = sidebarToggle.querySelector('i');
+            if (icon) icon.className = 'fa-solid fa-xmark';
+        }
+    }
+
+    function closeMobileDrawer() {
+        const backdrop = document.getElementById('sidebar-backdrop');
+        sidebar.classList.remove('mobile-open');
+        if (backdrop) backdrop.classList.remove('visible');
+        document.body.style.overflow = '';
+        if (sidebarToggle) {
+            const icon = sidebarToggle.querySelector('i');
+            if (icon) icon.className = 'fa-solid fa-bars';
+        }
+    }
 
     function toggleSidebar() {
-        const isCollapsed = sidebar.classList.toggle("collapsed");
-        // Swap icon: bars when sidebar is hidden, xmark when open
-        if (sidebarToggle) {
-            const icon = sidebarToggle.querySelector("i");
-            if (icon) {
-                icon.className = isCollapsed ? "fa-solid fa-bars" : "fa-solid fa-xmark";
+        if (isMobileViewport()) {
+            // Mobile: toggle drawer open/close
+            if (sidebar.classList.contains('mobile-open')) {
+                closeMobileDrawer();
+            } else {
+                openMobileDrawer();
+            }
+        } else {
+            // Desktop: Gemini-style collapse/expand
+            const isCollapsed = sidebar.classList.toggle('collapsed');
+            if (sidebarToggle) {
+                const icon = sidebarToggle.querySelector('i');
+                if (icon) icon.className = isCollapsed ? 'fa-solid fa-bars' : 'fa-solid fa-xmark';
             }
         }
     }
 
     if (sidebarToggle) {
-        sidebarToggle.addEventListener("click", toggleSidebar);
+        sidebarToggle.addEventListener('click', toggleSidebar);
     }
 
+    // On resize back to desktop: clean up any lingering mobile state
+    window.addEventListener('resize', function() {
+        if (!isMobileViewport()) {
+            closeMobileDrawer();
+        }
+    });
+
     // Note: no auto-close on nav clicks — Gemini-style sidebar persists across navigation
-    navItems.forEach(n => n.addEventListener("click", () => {
+    navItems.forEach(n => n.addEventListener('click', () => {
         // sidebar stays open on desktop (Gemini behaviour)
     }));
 
