@@ -3330,7 +3330,7 @@ body.sidebar-open {
         position: fixed;
         inset: 0;
         z-index: 199;
-        background: rgba(10, 16, 30, 0);
+        background: rgba(15, 23, 42, 0);
         backdrop-filter: none;
         -webkit-backdrop-filter: none;
         pointer-events: none;
@@ -3343,7 +3343,7 @@ body.sidebar-open {
         opacity: 1;
         visibility: visible;
         pointer-events: auto;
-        background: rgba(10, 16, 30, 0.45);
+        background: rgba(15, 23, 42, 0.2); /* bg-slate-900/20 gentle dark tint */
     }
 
     .sidebar-open-btn {
@@ -3542,9 +3542,15 @@ body.sidebar-open {
         position: relative;
     }
 
-    .mobile-bottom-nav .mob-nav-item i { font-size: 1.05rem; line-height: 1; }
+    .mobile-bottom-nav .mob-nav-item i,
+    .mobile-bottom-nav .mob-nav-item svg {
+        font-size: 1.05rem;
+        line-height: 1;
+        transition: transform 0.2s ease, stroke 0.2s ease, color 0.2s ease;
+    }
     .mobile-bottom-nav .mob-nav-item.active { color: var(--blue-vivid); }
-    .mobile-bottom-nav .mob-nav-item.active i { transform: scale(1.12); }
+    .mobile-bottom-nav .mob-nav-item.active i,
+    .mobile-bottom-nav .mob-nav-item.active svg { transform: scale(1.12); }
 
     .mobile-bottom-nav .mob-nav-item .mob-badge {
         position: absolute;
@@ -3632,4 +3638,21 @@ body.sidebar-open {
 /* ── MIN-WIDTH 769px — hide mobile bottom nav on tablet / desktop ── */
 @media (min-width: 769px) {
     .mobile-bottom-nav { display: none !important; }
+}
+
+/* ── Tailwind utility and responsive helpers ── */
+.w-5 { width: 1.25rem !important; }
+.h-5 { height: 1.25rem !important; }
+.mb-1 { margin-bottom: 0.25rem !important; }
+.mx-auto { margin-left: auto !important; margin-right: auto !important; }
+.block { display: block !important; }
+
+.bg-black\/20 { background-color: rgba(0, 0, 0, 0.2) !important; }
+.bg-slate-900\/20 { background-color: rgba(15, 23, 42, 0.2) !important; }
+
+@media (min-width: 768px) {
+    .md\:hidden { display: none !important; }
+}
+@media (min-width: 1024px) {
+    .lg\:hidden { display: none !important; }
 }

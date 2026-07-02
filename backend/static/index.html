@@ -34,7 +34,7 @@
 
 
     <!-- Mobile Sidebar Backdrop -->
-    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+    <div class="sidebar-backdrop bg-slate-900/20" id="sidebar-backdrop"></div>
 
     <div class="app-shell">
         <!-- ── SIDEBAR (Gemini-style in-flex) ────────────────────────── -->
@@ -779,13 +779,22 @@
     </div>
 
     <!-- ── Mobile Bottom Navigation Bar ────────────────────────────── -->
-    <nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Mobile navigation">
+    <nav class="mobile-bottom-nav md:hidden lg:hidden" id="mobile-bottom-nav" aria-label="Mobile navigation">
         <button class="mob-nav-item active" data-tab="dashboard-tab" aria-label="Dashboard">
-            <i class="fa-solid fa-chart-network"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard w-5 h-5 mb-1 mx-auto block">
+                <rect width="7" height="9" x="3" y="3" rx="1"/>
+                <rect width="7" height="5" x="14" y="3" rx="1"/>
+                <rect width="7" height="9" x="14" y="10" rx="1"/>
+                <rect width="7" height="5" x="3" y="14" rx="1"/>
+            </svg>
             Dashboard
         </button>
         <button class="mob-nav-item" data-tab="analysis-tab" aria-label="Analysis">
-            <i class="fa-solid fa-magnifying-glass-dna"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart-3 w-5 h-5 mb-1 mx-auto block">
+                <line x1="18" x2="18" y1="20" y2="12"/>
+                <line x1="12" x2="12" y1="20" y2="4"/>
+                <line x1="6" x2="6" y1="20" y2="16"/>
+            </svg>
             Analysis
         </button>
         <button class="mob-nav-item" data-tab="hitl-tab" aria-label="HITL Gate">
