@@ -2273,6 +2273,156 @@ body.sidebar-open {
     color: var(--blue-sky);
 }
 
+/* Dark mode overrides for inner layout wrappers, detail boxes, and cards */
+.dark .info-chip {
+    background: rgba(15, 23, 42, 0.4) !important;
+    border-color: rgba(51, 65, 85, 0.5) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+.dark .ic-lbl {
+    color: #94a3b8 !important;
+}
+.dark .ic-val {
+    color: #e2e8f0 !important;
+}
+
+.dark .ctx-row {
+    background: rgba(15, 23, 42, 0.4) !important;
+    border-color: rgba(51, 65, 85, 0.5) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+.dark .ctx-lbl {
+    color: #94a3b8 !important;
+}
+.dark .ctx-val {
+    color: #e2e8f0 !important;
+}
+
+.dark .conflict-panel {
+    background: rgba(15, 23, 42, 0.4) !important;
+    border-color: rgba(51, 65, 85, 0.5) !important;
+}
+.dark .conflict-panel-hd {
+    color: #e2e8f0 !important;
+}
+.dark .conflict-panel-bd {
+    color: #94a3b8 !important;
+}
+
+.dark .agent-node {
+    background: rgba(15, 23, 42, 0.4) !important;
+    border-color: rgba(51, 65, 85, 0.5) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+.dark .agent-node .node-info h4 {
+    color: #e2e8f0 !important;
+}
+.dark .agent-node .node-info p {
+    color: #94a3b8 !important;
+}
+
+.dark .lit-item {
+    background: rgba(15, 23, 42, 0.4) !important;
+    border-color: rgba(51, 65, 85, 0.5) !important;
+    color: #e2e8f0 !important;
+}
+.dark .lit-item:hover {
+    background: rgba(30, 41, 59, 0.5) !important;
+    border-color: var(--blue-sky) !important;
+}
+.dark .lit-item.active {
+    background: rgba(59, 130, 246, 0.15) !important;
+    border-color: var(--blue-vivid) !important;
+}
+
+.dark .lit-reader {
+    background: rgba(15, 23, 42, 0.4) !important;
+    border-color: rgba(51, 65, 85, 0.5) !important;
+}
+.dark .lit-reader-hd h4 {
+    color: #e2e8f0 !important;
+}
+.dark .lit-reader-body {
+    color: #94a3b8 !important;
+}
+
+.dark .memory-prior-block {
+    background: rgba(15, 23, 42, 0.4) !important;
+    border-color: rgba(51, 65, 85, 0.5) !important;
+    color: #94a3b8 !important;
+}
+
+.dark .math-block {
+    background: rgba(15, 23, 42, 0.4) !important;
+    border-color: rgba(51, 65, 85, 0.5) !important;
+}
+.dark .math-block h4 {
+    color: #e2e8f0 !important;
+}
+.dark .math-row span:first-child {
+    color: #94a3b8 !important;
+}
+.dark .math-row span:last-child {
+    color: #e2e8f0 !important;
+}
+.dark .prop-bar-group label {
+    color: #94a3b8 !important;
+}
+.dark .prop-bar-group span {
+    color: #e2e8f0 !important;
+}
+
+.dark .domain-diagram {
+    background: rgba(15, 23, 42, 0.4) !important;
+    border-color: rgba(51, 65, 85, 0.5) !important;
+}
+.dark .domain-diagram h4 {
+    color: #e2e8f0 !important;
+}
+.dark .domain-legend {
+    color: #94a3b8 !important;
+}
+
+.dark .tele-metric {
+    background: rgba(15, 23, 42, 0.4) !important;
+    border-color: rgba(51, 65, 85, 0.5) !important;
+}
+.dark .tele-metric .tm-label {
+    color: #94a3b8 !important;
+}
+.dark .tele-metric .tm-val {
+    color: #e2e8f0 !important;
+}
+
+.dark .ws-empty {
+    background: rgba(15, 23, 42, 0.4) !important;
+    border-color: rgba(51, 65, 85, 0.5) !important;
+    color: #94a3b8 !important;
+}
+.dark .ws-empty h2 {
+    color: #e2e8f0 !important;
+}
+
+.dark .hitl-portal {
+    background: rgba(30, 41, 59, 0.8) !important;
+    border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+.dark .chip-toggle {
+    background: rgba(15, 23, 42, 0.4) !important;
+    border-color: rgba(51, 65, 85, 0.5) !important;
+    color: #94a3b8 !important;
+}
+.dark .chip-toggle:hover {
+    background: rgba(30, 41, 59, 0.5) !important;
+    color: #e2e8f0 !important;
+}
+.dark .chip-toggle.active {
+    background: var(--blue-vivid) !important;
+    color: #fff !important;
+    border-color: var(--blue-vivid) !important;
+}
+
 .dark ::-webkit-scrollbar-track {
     background: #0f172a;
 }
