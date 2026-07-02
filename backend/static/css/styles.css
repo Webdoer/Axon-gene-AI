@@ -2423,6 +2423,27 @@ body.sidebar-open {
     border-color: var(--blue-vivid) !important;
 }
 
+/* Dark mode overrides for variant header and agent console terminal */
+.dark .variant-header {
+    background: rgba(15, 23, 42, 0.6) !important; /* bg-slate-900/60 */
+    border-color: rgba(51, 65, 85, 0.5) !important; /* border-slate-700/50 */
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25) !important;
+}
+.dark .variant-header h2 {
+    color: #ffffff !important; /* text-white */
+}
+.dark .vh-hgvs {
+    color: #cbd5e1 !important; /* text-slate-300 */
+}
+
+.dark .terminal-wrap {
+    background: rgba(9, 15, 30, 0.95) !important; /* bg-slate-950 / bg-slate-900/90 */
+    border: 1px solid rgba(30, 41, 59, 0.8) !important; /* border border-slate-800 */
+}
+.dark .terminal {
+    color: #cbd5e1 !important; /* text-slate-300 / text-slate-100 */
+}
+
 .dark ::-webkit-scrollbar-track {
     background: #0f172a;
 }
@@ -3799,6 +3820,14 @@ body.sidebar-open {
 
 .bg-black\/20 { background-color: rgba(0, 0, 0, 0.2) !important; }
 .bg-slate-900\/20 { background-color: rgba(15, 23, 42, 0.2) !important; }
+
+.bg-slate-950 { background-color: #020617 !important; }
+.bg-slate-900\/90 { background-color: rgba(15, 23, 42, 0.9) !important; }
+.bg-slate-900\/60 { background-color: rgba(15, 23, 42, 0.6) !important; }
+.bg-slate-800\/40 { background-color: rgba(30, 41, 59, 0.4) !important; }
+.border-slate-800 { border-color: rgba(30, 41, 59, 0.8) !important; }
+.text-white { color: #ffffff !important; }
+.text-slate-100 { color: #f1f5f9 !important; }
 
 @media (min-width: 768px) {
     .md\:hidden { display: none !important; }
