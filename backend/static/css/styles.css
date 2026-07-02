@@ -164,9 +164,10 @@ textarea {
     position: relative;
     z-index: 1;
     display: flex;
-    width: 100vw;
+    width: 100%;
     min-height: 100vh;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: visible;
 }
 
 /* ─── Gemini-style In-Flex Sidebar ───────────────────────────────── */
@@ -599,6 +600,11 @@ textarea {
     display: none;
     flex: 1;
     padding: 2rem 2.5rem 2.5rem;
+    /* Prevent any child from blowing the viewport width */
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 .tab.active {
@@ -668,14 +674,15 @@ textarea {
 /* Strict max-width — card can never stretch full width */
 .dash-single-col {
     width: 100%;
-    max-width: 768px;
+    max-width: min(768px, calc(100vw - 2rem));
     margin-left: auto;
     margin-right: auto;
+    min-width: 0;
 }
 
 .dash-grid {
     display: grid;
-    grid-template-columns: 420px 1fr;
+    grid-template-columns: minmax(0, 420px) 1fr;
     gap: 1.5rem;
 }
 
@@ -797,7 +804,8 @@ textarea {
 
 .demo-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    /* 1-col on very small screens, 2-col on sm, 4-col on lg */
+    grid-template-columns: repeat(1, 1fr);
     gap: .65rem;
 }
 
@@ -1021,21 +1029,26 @@ textarea {
 
 /* ─── Workspace ──────────────────────────────────────────────────── */
 .workspace-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;   /* stacked on mobile */
     gap: 1.5rem;
+    min-width: 0;
 }
 
 .ws-left {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    min-width: 0;
+    width: 100%;
 }
 
 .ws-right {
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+    min-width: 0;
+    width: 100%;
 }
 
 .ws-empty {
@@ -1629,7 +1642,7 @@ textarea {
 /* ─── Math/Alignment Panel ───────────────────────────────────────── */
 .math-two-col {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;  /* stacked mobile-first */
     gap: 1rem;
     margin-bottom: 1rem;
 }
@@ -1782,7 +1795,7 @@ textarea {
 /* ─── Literature Panel ───────────────────────────────────────────── */
 .lit-layout {
     display: grid;
-    grid-template-columns: 200px 1fr;
+    grid-template-columns: 1fr;  /* stacked on mobile */
     gap: 1rem;
 }
 
@@ -1911,12 +1924,12 @@ textarea {
 /* ─── Telemetry Grid ─────────────────────────────────────────────── */
 .telemetry-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;  /* single col mobile-first */
     gap: 1.5rem;
 }
 
 .col-span-2 {
-    grid-column: span 2;
+    grid-column: span 1; /* collapsed on mobile */
 }
 
 .tele-metrics {
@@ -3223,14 +3236,57 @@ body.sidebar-open {
 .dark .vcf-progress-label { color: var(--text-900); }
 .dark .vcf-progress-pct { color: var(--blue-sky); }
 /* ══════════════════════════════════════════════════════════════════════
-   RESPONSIVE — MOBILE FIRST
-   <= 768px  : tablet / large phone (sidebar drawer, 1-col grids)
-   <= 480px  : small phone (tighter padding, bottom nav)
+   RESPONSIVE — MOBILE FIRST  (320px → 480px → 640px → 768px → 1024px → 1280px+)
    ══════════════════════════════════════════════════════════════════════ */
 
+/* ── SM breakpoint  (≥ 640px) — medium phones, large phablets ── */
+@media (min-width: 640px) {
+    .demo-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .math-two-col {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* ── MD breakpoint  (≥ 768px) — tablets in landscape, small laptops ── */
+@media (min-width: 768px) {
+    .lit-layout {
+        grid-template-columns: 200px 1fr;
+    }
+}
+
+/* ── LG breakpoint  (≥ 1024px) — standard laptop / desktop ── */
+@media (min-width: 1024px) {
+    .demo-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    /* Side-by-side workspace: agent graph on left, results on right */
+    .workspace-grid {
+        flex-direction: row;
+    }
+
+    .ws-left,
+    .ws-right {
+        flex: 1;
+    }
+
+    /* Telemetry: two equal columns on desktop */
+    .telemetry-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .col-span-2 {
+        grid-column: span 2;
+    }
+}
+
+/* ── MAX-WIDTH 768px — tablet portrait / large phone drawer mode ── */
 @media (max-width: 768px) {
 
-    /* On mobile: keep the toggle button visible inside the top-bar — no floating button needed */
+    /* On mobile: keep the toggle button visible inside the top-bar */
     .sidebar-toggle-btn {
         display: flex;
         flex-shrink: 0;
@@ -3238,7 +3294,7 @@ body.sidebar-open {
 
     .app-shell {
         flex-direction: column;
-        overflow: visible;
+        overflow-x: hidden;
     }
 
     .sidebar {
@@ -3288,11 +3344,8 @@ body.sidebar-open {
         visibility: visible;
         pointer-events: auto;
         background: rgba(10, 16, 30, 0.45);
-        backdrop-filter: none;
-        -webkit-backdrop-filter: none;
     }
 
-    /* sidebar-open-btn is removed; toggle is now the native in-bar button */
     .sidebar-open-btn {
         display: none !important;
     }
@@ -3301,8 +3354,10 @@ body.sidebar-open {
         height: auto;
         min-height: 100vh;
         width: 100%;
+        overflow-x: hidden;
     }
 
+    /* ── Top Bar ── */
     .top-bar {
         position: sticky;
         top: 0;
@@ -3312,11 +3367,11 @@ body.sidebar-open {
         border-left: none;
         border-right: none;
         border-top: none;
-        /* Normal padding — hamburger lives inside, no offset needed */
         padding: 0.75rem 0.875rem;
-        gap: 0.65rem;
+        gap: 0.5rem;
         flex-wrap: nowrap;
         z-index: 90;
+        overflow: hidden;
     }
 
     .sidebar.collapsed ~ .main-area .top-bar {
@@ -3324,13 +3379,24 @@ body.sidebar-open {
         width: 100%;
     }
 
-    .top-bar-title h1 { font-size: 0.88rem; }
+    .top-bar-left {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .top-bar-title h1 {
+        font-size: 0.88rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
     .top-bar-title p { display: none; }
 
     .top-bar-stats {
         gap: 0.3rem;
         flex-wrap: nowrap;
-        margin-left: auto;
+        flex-shrink: 0;
     }
 
     .mini-stat { padding: 0.3rem 0.5rem; gap: 0.25rem; }
@@ -3340,33 +3406,103 @@ body.sidebar-open {
     .export-pdf-btn span { display: none; }
     .export-pdf-btn { padding: 0.38rem 0.55rem; }
 
-    .tab { padding: 1.25rem 1rem 5.5rem; }
+    /* ── Tabs ── */
+    .tab { padding: 1.25rem 1rem 5.5rem; overflow-x: hidden; }
     #dashboard-tab.active {
         padding: 1.25rem 1rem 5.5rem;
         justify-content: flex-start;
         min-height: auto;
     }
 
+    /* ── Dashboard ── */
     .dash-single-col { max-width: 100%; }
     .dash-mode-strip { flex-direction: column; gap: 0.5rem; }
     .demo-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
-    .workspace-grid, .dash-grid, .eval-grid { grid-template-columns: 1fr; }
-    .analysis-grid, .result-grid, .sec-grid, .audit-grid, .security-grid { grid-template-columns: 1fr !important; }
+    .dash-grid { grid-template-columns: 1fr; }
 
-    .table-wrap, .batch-table-wrap {
+    /* VCF Dropzone — tighter on mobile */
+    .vcf-dropzone { padding: 1.5rem 1rem; }
+    .vcf-drop-title { font-size: 0.88rem; }
+    .vcf-drop-sub { font-size: 0.72rem; }
+
+    /* VCF agents row — wrap chips */
+    .vcf-agents-row {
+        flex-wrap: wrap;
+        gap: 0.4rem;
+    }
+
+    /* Eval suite controls — stack on mobile */
+    .eval-controls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .eval-filter-group {
+        width: 100%;
+    }
+
+    #run-all-eval-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* ── Misc grids collapse ── */
+    .analysis-grid, .result-grid, .sec-grid, .audit-grid, .security-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* ── Tables ── */
+    .table-wrap {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        border-radius: var(--radius-md);
     }
-    .data-table, .batch-table { min-width: 520px; }
 
+    .batch-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: var(--radius-md);
+    }
+
+    .data-table   { min-width: 520px; }
+    .batch-table  { min-width: 520px; }
+
+    /* ── Workspace ── */
+    .workspace-grid { flex-direction: column; }
+
+    /* ── Literature panel ── */
+    .lit-layout { grid-template-columns: 1fr; }
+
+    /* ── Variant header ── */
+    .variant-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .confidence-gauge-wrap {
+        align-self: flex-start;
+    }
+
+    /* ── HITL conflict grid ── */
+    .conflict-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* ── Cards ── */
     .card-bd { padding: 1.25rem 1rem; }
     .card-hd { padding: 1rem 1.25rem; }
 
+    /* ── Submit button full width on mobile ── */
+    .btn-full { width: 100%; justify-content: center; }
+
+    /* ── Misc ── */
     .log-entry { flex-direction: column; align-items: flex-start; gap: 0.3rem; }
     .log-meta { white-space: normal; }
     .stat-bar, .metric-row { flex-wrap: wrap; gap: 0.5rem; }
+    .ws-tabs { flex-wrap: wrap; }
 
-    /* Bottom Navigation Bar */
+    /* ── Bottom Navigation Bar ── */
     .mobile-bottom-nav {
         display: flex;
         position: fixed;
@@ -3407,7 +3543,6 @@ body.sidebar-open {
     }
 
     .mobile-bottom-nav .mob-nav-item i { font-size: 1.05rem; line-height: 1; }
-
     .mobile-bottom-nav .mob-nav-item.active { color: var(--blue-vivid); }
     .mobile-bottom-nav .mob-nav-item.active i { transform: scale(1.12); }
 
@@ -3430,10 +3565,11 @@ body.sidebar-open {
     }
 }
 
+/* ── MAX-WIDTH 480px — typical smartphone portrait ── */
 @media (max-width: 480px) {
     html { font-size: 13px; }
 
-    .top-bar { padding: 0.75rem 0.75rem 0.75rem 3.1rem; }
+    .top-bar { padding: 0.65rem 0.75rem; gap: 0.4rem; }
     .top-bar-title h1 { font-size: 0.8rem; }
     #stat-guard { display: none; }
     .demo-grid { grid-template-columns: repeat(2, 1fr); }
@@ -3446,9 +3582,54 @@ body.sidebar-open {
     .brand { padding: 1.1rem 1rem; }
     .ws-empty { padding: 2rem 1rem; }
     .ws-empty-icon { font-size: 2.5rem; }
+
+    /* Tighten VCF dropzone */
+    .vcf-dropzone { padding: 1.25rem 0.75rem; }
+
+    /* Variant header chips wrap */
+    .info-chips { flex-wrap: wrap; }
+
+    /* Math two-col forced single on tiny phones */
+    .math-two-col { grid-template-columns: 1fr; }
+
+    /* Prop bar labels shrink on very small screens */
+    .prop-bar-group label { min-width: 80px; font-size: 0.65rem; }
 }
 
+/* ── MAX-WIDTH 360px — very narrow phones (320px – 360px) ── */
+@media (max-width: 360px) {
+    html { font-size: 12px; }
+
+    :root { --sidebar-w: 240px; }
+
+    .top-bar { padding: 0.55rem 0.6rem; gap: 0.3rem; }
+    .top-bar-title h1 { font-size: 0.75rem; }
+    #stat-total { display: none; }
+
+    .demo-grid { grid-template-columns: repeat(2, 1fr); gap: 0.4rem; }
+    .demo-btn { padding: 0.65rem 0.6rem; }
+
+    .tab { padding: 0.65rem 0.5rem 5.5rem; }
+    #dashboard-tab.active { padding: 0.65rem 0.5rem 5.5rem; }
+
+    .card-bd { padding: 0.9rem 0.75rem; }
+    .card-hd { padding: 0.75rem 0.9rem; font-size: 0.75rem; }
+
+    .btn { padding: 0.65rem 0.85rem; font-size: 0.75rem; }
+    .ws-tab { font-size: 0.68rem; padding: 0.35rem 0.55rem; }
+
+    /* Ensure table scroll containers work at 320px */
+    .table-wrap, .batch-table-wrap {
+        max-width: calc(100vw - 1rem);
+        overflow-x: auto;
+    }
+
+    .mini-stat { display: none; }
+    .export-pdf-btn { display: none; }
+    .theme-toggle-btn { flex-shrink: 0; }
+}
+
+/* ── MIN-WIDTH 769px — hide mobile bottom nav on tablet / desktop ── */
 @media (min-width: 769px) {
     .mobile-bottom-nav { display: none !important; }
 }
-

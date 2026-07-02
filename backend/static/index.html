@@ -389,7 +389,7 @@
                     <div class="card-hd"><i class="fa-solid fa-clock-rotate-left text-cyan"></i> Analysis History
                         <button class="btn btn-xs btn-ghost" id="refresh-history-btn"><i class="fa-solid fa-arrows-rotate"></i></button>
                     </div>
-                    <div class="table-wrap">
+                    <div class="table-wrap" style="width:100%;overflow-x:auto">
                         <table class="data-table" id="history-table">
                             <thead><tr>
                                 <th>Run ID</th><th>Query</th><th>Gene</th><th>HGVS</th>
@@ -403,9 +403,9 @@
                 </div>
             </section>
 
-            <!-- ── TAB: ANALYSIS WORKSPACE ───────────────────── -->
+            <!-- ── TAB: ANALYSIS WORKSPACE ───────────────────────────────── -->
             <section id="analysis-tab" class="tab">
-                <div class="workspace-grid">
+                <div class="workspace-grid" style="width:100%;min-width:0">
                     <!-- Left: Agent Graph + Terminal -->
                     <div class="ws-left">
                         <!-- Agent pipeline graph -->
@@ -668,7 +668,7 @@
                     <div class="card-hd"><i class="fa-solid fa-user-shield text-amber"></i> Human-In-The-Loop Queue</div>
                     <div class="card-bd">
                         <p class="hint mb-md">Runs paused by PolicyAgent for confidence ≥ 0.85 or conflicting literature assertions. Authorised technicians must confirm or override before execution resumes.</p>
-                        <div class="table-wrap">
+                        <div class="table-wrap" style="width:100%;overflow-x:auto">
                             <table class="data-table" id="hitl-table">
                                 <thead><tr><th>Run ID</th><th>Query</th><th>Gene</th><th>Proposed Class</th><th>Conflict Reason</th><th>Time</th><th>Actions</th></tr></thead>
                                 <tbody id="hitl-tbody"><tr><td colspan="7" class="empty-row">No runs pending HITL review.</td></tr></tbody>
@@ -695,7 +695,7 @@
                                 <i class="fa-solid fa-play"></i> Run All 20 Fixtures
                             </button>
                         </div>
-                        <div class="table-wrap" style="margin-top:1.25rem">
+                        <div class="table-wrap" style="margin-top:1.25rem;width:100%;overflow-x:auto">
                             <table class="data-table" id="eval-table">
                                 <thead><tr><th>ID</th><th>Category</th><th>Gene</th><th>HGVS-c</th><th>Expected</th><th>HITL?</th><th>Conflict?</th><th>Description</th><th></th></tr></thead>
                                 <tbody id="eval-tbody"></tbody>
@@ -712,7 +712,7 @@
                         <div class="card-hd"><i class="fa-solid fa-link text-indigo"></i> SHA-256 Audit Chain</div>
                         <div class="card-bd">
                             <p class="hint mb-md">Every agent state transition, HITL override, and DebugAgent patch is hashed and chained into an immutable ledger.</p>
-                            <div class="table-wrap">
+                            <div class="table-wrap" style="width:100%;overflow-x:auto">
                                 <table class="data-table" id="audit-table">
                                     <thead><tr><th>Time</th><th>Event</th><th>Agent</th><th>Actor</th><th>Prev Hash</th><th>Curr Hash</th></tr></thead>
                                     <tbody id="audit-tbody"><tr><td colspan="6" class="empty-row">No audit entries yet.</td></tr></tbody>
@@ -723,7 +723,7 @@
                     <div class="card glass">
                         <div class="card-hd"><i class="fa-solid fa-shield-halved text-amber"></i> Guardrail Violations</div>
                         <div class="card-bd">
-                            <div class="table-wrap">
+                            <div class="table-wrap" style="width:100%;overflow-x:auto">
                                 <table class="data-table" id="guard-table">
                                     <thead><tr><th>Time</th><th>Direction</th><th>Type</th><th>Severity</th><th>Detail</th></tr></thead>
                                     <tbody id="guard-tbody"><tr><td colspan="5" class="empty-row">No violations logged.</td></tr></tbody>
@@ -753,7 +753,7 @@
                     <div class="card glass">
                         <div class="card-hd"><i class="fa-solid fa-code text-indigo"></i> Self-Debug Patch Log</div>
                         <div class="card-bd">
-                            <div class="table-wrap">
+                            <div class="table-wrap" style="width:100%;overflow-x:auto">
                                 <table class="data-table" id="patch-table">
                                     <thead><tr><th>Time</th><th>Run</th><th>Agent</th><th>Error Type</th><th>Attempt</th><th>Result</th><th>SHA-256</th></tr></thead>
                                     <tbody id="patch-tbody"><tr><td colspan="7" class="empty-row">No patch events yet.</td></tr></tbody>
@@ -764,7 +764,7 @@
                     <div class="card glass col-span-2">
                         <div class="card-hd"><i class="fa-solid fa-heartbeat text-amber"></i> Recent Agent Events</div>
                         <div class="card-bd">
-                            <div class="table-wrap">
+                            <div class="table-wrap" style="width:100%;overflow-x:auto">
                                 <table class="data-table">
                                     <thead><tr><th>Time</th><th>Run</th><th>Agent</th><th>Level</th><th>Message</th></tr></thead>
                                     <tbody id="tele-events-tbody"><tr><td colspan="5" class="empty-row">No events yet.</td></tr></tbody>
