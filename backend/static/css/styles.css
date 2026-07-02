@@ -1258,8 +1258,8 @@ textarea {
 
 /* ─── Terminal ────────────────────────────────────────────────────── */
 .terminal-wrap {
-    background: #f8fafc;
-    border-top: 1px solid rgba(37, 99, 235, .07);
+    background: #f8fafc;                          /* light: crisp off-white */
+    border: 1px solid rgba(203, 213, 225, 0.8);   /* border-slate-200 */
     border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
@@ -1273,7 +1273,8 @@ textarea {
     flex-direction: column;
     gap: .35rem;
     scroll-behavior: smooth;
-    color: var(--text-600);
+    color: #334155;   /* text-slate-700 — readable on light bg */
+    background: transparent;
 }
 
 .terminal::-webkit-scrollbar {
@@ -1452,8 +1453,8 @@ textarea {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: rgba(255, 255, 255, .8);
-    border: 1px solid rgba(255, 255, 255, .85);
+    background: rgba(241, 245, 255, 0.70);         /* bg-slate-100/70 — light theme */
+    border: 1px solid rgba(203, 213, 225, 0.9);    /* border-slate-200 */
     border-radius: var(--radius-lg);
     padding: 1.25rem 1.5rem;
     backdrop-filter: blur(16px);
@@ -1482,12 +1483,12 @@ textarea {
 .variant-header h2 {
     font-size: 1.1rem;
     font-weight: 800;
-    color: var(--text-900);
+    color: #1e293b;   /* text-slate-800 — dark enough on light bg */
 }
 
 .vh-hgvs {
     font-size: .72rem;
-    color: var(--text-400);
+    color: #475569;   /* text-slate-600 */
     margin-top: .1rem;
 }
 
@@ -2425,23 +2426,26 @@ body.sidebar-open {
 
 /* Dark mode overrides for variant header and agent console terminal */
 .dark .variant-header {
-    background: rgba(15, 23, 42, 0.6) !important; /* bg-slate-900/60 */
-    border-color: rgba(51, 65, 85, 0.5) !important; /* border-slate-700/50 */
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25) !important;
+    background: rgba(15, 23, 42, 0.60);          /* bg-slate-900/60 */
+    border-color: rgba(51, 65, 85, 0.50);        /* border-slate-700/50 */
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
 }
 .dark .variant-header h2 {
-    color: #ffffff !important; /* text-white */
+    color: #ffffff;    /* text-white */
 }
 .dark .vh-hgvs {
-    color: #cbd5e1 !important; /* text-slate-300 */
+    color: #cbd5e1;    /* text-slate-300 */
+}
+.dark .ring-pct {
+    fill: #f1f5f9;     /* text-slate-100 — visible on dark ring */
 }
 
 .dark .terminal-wrap {
-    background: rgba(9, 15, 30, 0.95) !important; /* bg-slate-950 / bg-slate-900/90 */
-    border: 1px solid rgba(30, 41, 59, 0.8) !important; /* border border-slate-800 */
+    background: #020817;                          /* bg-slate-950 */
+    border: 1px solid rgba(30, 41, 59, 0.80);    /* border-slate-800 */
 }
 .dark .terminal {
-    color: #cbd5e1 !important; /* text-slate-300 / text-slate-100 */
+    color: #cbd5e1;    /* text-slate-300 */
 }
 
 .dark ::-webkit-scrollbar-track {
