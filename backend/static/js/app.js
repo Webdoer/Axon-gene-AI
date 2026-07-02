@@ -866,14 +866,44 @@ document.addEventListener("DOMContentLoaded", () => {
             citations:     monitorData.citations?.length || 0,
         } : null;
 
-        return { meta, classification, agentTimeline, metrics, memoryNote, clinvarCtx, gEvents };
+        // ACMG checklist snapshot — active selections at export time
+        const { adjConf, adjClass } = computeAdjusted();
+        const acmgChecklist = {
+            adjConf,
+            adjClass,
+            activeItems: CHECKLIST_ITEMS
+                .filter(item => checklistState[item.id])
+                .map(item => ({
+                    code:    item.id
+                                .replace('cl-', '')           // strip prefix
+                                .replace(/-/g, '_')           // normalise
+                                .toUpperCase(),               // e.g. PHENOTYPE
+                    acmgCode: (
+                        item.id === 'cl-phenotype'    ? 'PP4'  :
+                        item.id === 'cl-denovo'       ? 'PS2'  :
+                        item.id === 'cl-coseg'        ? 'PP1'  :
+                        item.id === 'cl-functional'   ? 'PS3'  :
+                        item.id === 'cl-reputable'    ? 'PP5'  :
+                        item.id === 'cl-common-pop'   ? 'BS1'  :
+                        item.id === 'cl-silent'       ? 'BP7'  :
+                        item.id === 'cl-healthy-adult'? 'BS2'  :
+                        item.id === 'cl-no-coseg'     ? 'BS4'  : '—'
+                    ),
+                    label:  item.label,
+                    desc:   item.desc,
+                    delta:  item.delta,
+                    group:  item.group,
+                })),
+        };
+
+        return { meta, classification, agentTimeline, metrics, memoryNote, clinvarCtx, gEvents, acmgChecklist };
     }
 
     // ── buildReportHTML ───────────────────────────────────────────────
     // Produces a self-contained, print-ready HTML string using table-based
     // layout (no flexbox/grid) for strict PDF engine compatibility.
     function buildReportHTML(d) {
-        const { meta, classification, agentTimeline, metrics, memoryNote, clinvarCtx, gEvents } = d;
+        const { meta, classification, metrics, memoryNote, clinvarCtx, gEvents, acmgChecklist } = d;
 
         const classColor =
             classification.label === "Pathogenic"         ? "#dc2626" :
@@ -882,42 +912,44 @@ document.addEventListener("DOMContentLoaded", () => {
             classification.label === "Likely Benign"      ? "#15803d" :
             "#4f46e5"; // VUS
 
-        // Agent timeline rows
-        const statusIcon = s =>
-            s === "COMPLETED" ? "✓" :
-            s === "STARTED"   ? "▶" :
-            s === "WARNING" || s === "PAUSED" ? "⚠" :
-            s === "ERROR" || s === "FAILED"   ? "✗" :
-            s === "HEALED"    ? "⚕" : "·";
+        // ── ACMG Checklist rows ───────────────────────────────────────────
+        const adjClassColor =
+            acmgChecklist.adjClass.includes("Pathogenic") ? "#dc2626" :
+            acmgChecklist.adjClass.includes("Benign")     ? "#16a34a" : "#4f46e5";
 
-        const statusColor = s =>
-            s === "COMPLETED" ? "#16a34a" :
-            s === "STARTED"   ? "#2563eb" :
-            s === "WARNING" || s === "PAUSED" ? "#d97706" :
-            s === "ERROR" || s === "FAILED"   ? "#dc2626" :
-            s === "HEALED"    ? "#0891b2" : "#64748b";
+        const noActiveItems = acmgChecklist.activeItems.length === 0;
 
-        const timelineRows = agentTimeline.map((e, i) => {
-            const ts = e.timestamp ? new Date(e.timestamp).toLocaleTimeString() : "";
-            const isLast = i === agentTimeline.length - 1;
-            return `
-            <tr>
-                <td width="22" style="padding:0;vertical-align:top;text-align:center;">
-                    <div style="width:22px;position:relative;">
-                        <div style="width:22px;height:22px;border-radius:50%;background:${statusColor(e.status)};
-                            color:#fff;font-size:10px;font-weight:700;text-align:center;line-height:22px;">
-                            ${statusIcon(e.status)}
-                        </div>
-                        ${!isLast ? `<div style="width:2px;background:#e2e8f0;margin:0 auto;height:28px;"></div>` : ""}
-                    </div>
-                </td>
-                <td style="padding:0 0 ${isLast ? "0" : "24px"} 12px;vertical-align:top;">
-                    <div style="font-size:9.5px;font-weight:700;color:#0f172a;font-family:monospace;">${e.agent}</div>
-                    <div style="font-size:8.5px;color:#64748b;margin-top:2px;">[${e.status}]${ts ? " · " + ts : ""}</div>
-                    <div style="font-size:8.5px;color:#334155;margin-top:4px;line-height:1.5;max-width:240px;">${(e.message || "").substring(0, 180)}${e.message && e.message.length > 180 ? "…" : ""}</div>
-                </td>
-            </tr>`;
-        }).join("");
+        const checklistRows = noActiveItems
+            ? `<tr><td colspan="4" style="padding:10px 8px;font-size:8.5px;color:#94a3b8;font-style:italic;"
+                >No criteria manually selected — pipeline auto-classification applied.</td></tr>`
+            : acmgChecklist.activeItems.map(item => {
+                const isPath   = item.group === "path";
+                const rowBg    = isPath ? "#fef2f2" : "#f0fdf4";
+                const dotColor = isPath ? "#dc2626"  : "#16a34a";
+                const deltaTxt = (item.delta > 0 ? "+" : "") + item.delta;
+                const deltaClr = item.delta > 0 ? "#dc2626" : "#16a34a";
+                return `
+                <tr style="background:${rowBg};">
+                    <td style="padding:6px 8px;vertical-align:top;width:16px;">
+                        <div style="width:14px;height:14px;border-radius:3px;background:${dotColor};
+                            color:#fff;font-size:9px;font-weight:900;text-align:center;line-height:14px;"
+                        >✓</div>
+                    </td>
+                    <td style="padding:6px 6px;vertical-align:top;width:38px;">
+                        <span style="display:inline-block;background:#1e3a8a;color:#fff;font-size:7.5px;
+                            font-weight:800;border-radius:4px;padding:2px 5px;font-family:monospace;"
+                        >${item.acmgCode}</span>
+                    </td>
+                    <td style="padding:6px 4px;vertical-align:top;">
+                        <div style="font-size:8.5px;font-weight:700;color:#0f172a;">${item.label}</div>
+                        <div style="font-size:7.5px;color:#64748b;margin-top:2px;line-height:1.5;">${item.desc}</div>
+                    </td>
+                    <td style="padding:6px 8px;vertical-align:top;text-align:right;width:32px;">
+                        <span style="font-size:9px;font-weight:900;color:${deltaClr};font-family:monospace;"
+                        >${deltaTxt}</span>
+                    </td>
+                </tr>`;
+            }).join("");
 
         // Metrics rows (right column)
         const metricRow = (label, value, highlight) => `
@@ -992,15 +1024,39 @@ document.addEventListener("DOMContentLoaded", () => {
 <table width="100%" cellpadding="0" cellspacing="0" style="padding:20px 36px;background:#f8fafc;">
   <tr valign="top">
 
-    <!-- LEFT: Agent Execution Timeline -->
+    <!-- LEFT: ACMG Diagnostic Checklist Evaluation Summary -->
     <td width="50%" style="padding-right:18px;">
       <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px 18px;margin-bottom:16px;">
-        <div style="font-size:8px;font-weight:800;color:#1e3a8a;text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e2e8f0;">
-          ◎ Multi-Agent Execution Timeline
+        <div style="font-size:8px;font-weight:800;color:#1e3a8a;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;padding-bottom:8px;border-bottom:2px solid #e2e8f0;">
+          ◎ ACMG Diagnostic Checklist Evaluation Summary
         </div>
-        <table width="100%" cellpadding="0" cellspacing="0">
-          ${timelineRows}
+        <!-- Adjusted score banner -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;
+            background:#f1f5f9;border-radius:6px;padding:7px 10px;">
+          <span style="font-size:8px;color:#475569;font-weight:600;">Clinician-Adjusted Score</span>
+          <span style="font-size:9.5px;font-weight:900;color:${adjClassColor};font-family:monospace;">
+            ${acmgChecklist.adjConf}% &nbsp;·&nbsp; ${acmgChecklist.adjClass}
+          </span>
+        </div>
+        <!-- Checklist header row -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;">
+          <tr style="background:#f8fafc;">
+            <td style="padding:5px 8px;font-size:7px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #e2e8f0;width:16px;"></td>
+            <td style="padding:5px 6px;font-size:7px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #e2e8f0;width:38px;">Code</td>
+            <td style="padding:5px 4px;font-size:7px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #e2e8f0;">Criterion &amp; Evidence Rationale</td>
+            <td style="padding:5px 8px;font-size:7px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #e2e8f0;text-align:right;width:32px;">Pts</td>
+          </tr>
+          ${checklistRows}
         </table>
+        ${noActiveItems ? "" : `
+        <!-- Point total footer -->
+        <div style="margin-top:8px;padding:6px 10px;background:#f8fafc;border-radius:4px;
+            display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:7.5px;color:#64748b;font-weight:600;">Net Point Modifier</span>
+          <span style="font-size:9px;font-weight:900;color:${adjClassColor};font-family:monospace;">
+            ${acmgChecklist.activeItems.reduce((s, i) => s + i.delta, 0) >= 0 ? "+" : ""}${acmgChecklist.activeItems.reduce((s, i) => s + i.delta, 0)} pts
+          </span>
+        </div>`}
       </div>
 
       <!-- ClinVar Context -->
